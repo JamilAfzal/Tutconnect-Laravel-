@@ -20,6 +20,8 @@ use App\Http\Controllers\coursecontroller;
 //Teachers Crud Apis
 Route::post("registerteacher",[teachercontroller::class,"teacher_register"]);
 Route::get("allteachers",[teachercontroller::class,"allteachers"]);
+Route::delete("deleteteacher/{id}",[teachercontroller::class,"deleteteacher"]);
+Route::get("showteacher/{id}",[teachercontroller::class,"showteacher"]);
 //Students CRUD Apis
 Route::post("registerstudent",[studentcontroller::class,"student_register"]);
 Route::get("allstudents",[studentcontroller::class,"show_students"]);
