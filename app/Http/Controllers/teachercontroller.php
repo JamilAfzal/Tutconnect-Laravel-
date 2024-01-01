@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\customfields;
 use App\Models\Teacher; // Fix the namespace
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class teachercontroller extends Controller
 {
@@ -71,16 +72,18 @@ class teachercontroller extends Controller
 
                 if (!$customField) {
                     throw new \Exception('Failed to create custom field.');
-                }
-            
-}
+                }}
+                $decodedFields = json_decode($customField->fields, true);
+                return response()->json(["Message" => "Teacher Registered Successfully", "Data" => $teacher, "Custom Fields" => $decodedFields]);
 
-    
-            return response()->json(["Message" => "Teacher Registered Successfully", "Data" => $teacher, "Custom Fields"=>$customField]);
-        } catch (\Exception $e) {
-            return response()->json(['Error' => $e->getMessage()]);
-        }
+            }
+
+            
+           catch (\Exception $e) {
+    return response()->json(['Error' => $e->getMessage()]);
+}
     }
+
     public function allteachers()
 {
     $teachers = Teacher::with('customfields')->get();
@@ -134,6 +137,36 @@ class teachercontroller extends Controller
             
             return response()->json(["Status" => "Success", "Message" => "Showing the Teacher Details","Data"=>$teacher,]);
         } catch (\Exception $e){
+            return response()->json(['Error' => $e->getMessage()]);
+        }
+     }
+     public function updateteacher(Request $req , $teacher_id){
+        try{
+            $teacher = Teacher::find($teacher_id);
+            if(!$teacher){
+                return response()->json(["Message"=>"No Teacher Found"]);
+            }
+            $validatedData = $req->validate([
+                'email' => 'required|email|unique:teachers,email,' . $teacher_id . ',teacher_id',
+                'fullname' => 'required|min:5|unique:teachers,fullname,' . $teacher_id . ',teacher_id',
+                'phonenumber' => 'required|string|min:11|max:15|unique:teachers,phonenumber,' . $teacher_id . ',teacher_id',
+            ]);
+            $teacher->fullname = $validatedData['fullname'] ??teacher->fullname;
+            $teacher->email = $validatedData['email'] ?? $teacher->email;
+            $teacher->phonenumber = $validatedData['phonenumber'] ?? $teacher->phonenumber; 
+            $teacher->about = $req->about;
+           $teacher->qualification = $req -> qualification;
+        if ($req->has('custom_fields') && is_array($req->input('custom_fields')) && count($req->input('custom_fields')) > 0) {
+            $customFieldsData = $req->input('custom_fields');
+            $customFieldsData['teacher_id'] = $teacher->teacher_id;
+            $customField = $teacher->customfields()->updateOrCreate([], ['fields' => json_encode($customFieldsData)]);
+        }
+        
+        $teacher->save();
+        $result = array('status' => 'true', 'message' => 'Teacher\'s Info has been Updated', 'data' => $teacher);
+        return response()->json($result);
+        }
+        catch(\Exception $e){
             return response()->json(['Error' => $e->getMessage()]);
         }
      }

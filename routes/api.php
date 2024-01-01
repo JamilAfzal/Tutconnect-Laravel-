@@ -22,6 +22,7 @@ Route::post("registerteacher",[teachercontroller::class,"teacher_register"]);
 Route::get("allteachers",[teachercontroller::class,"allteachers"]);
 Route::delete("deleteteacher/{id}",[teachercontroller::class,"deleteteacher"]);
 Route::get("showteacher/{id}",[teachercontroller::class,"showteacher"]);
+Route::put("updateteacher/{id}",[teachercontroller::class,"updateteacher"]);
 //Students CRUD Apis
 Route::post("registerstudent",[studentcontroller::class,"student_register"]);
 Route::get("allstudents",[studentcontroller::class,"show_students"]);

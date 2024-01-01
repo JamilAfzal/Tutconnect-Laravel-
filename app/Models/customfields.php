@@ -12,7 +12,7 @@ class customfields extends Model
     protected $fillable = ['fields'];
 
     protected $casts = [
-        'fields' => 'array',
+        'fields' => 'json',
     ];
     public function teacher()
     {
