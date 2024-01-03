@@ -7,6 +7,8 @@ use App\Models\customfields;
 use App\Models\Teacher; // Fix the namespace
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Course;
+use App\Models\Modules;
 
 class teachercontroller extends Controller
 {
@@ -120,6 +122,9 @@ class teachercontroller extends Controller
         if(!$teacher){
             return response()->json(["Status"=>"Failed","Message"=>"No Teacher Found"]);
         }
+
+        $teacher->course()->delete();
+        $teacher->course()->modules()->delete();
         $teacher->customfields()->delete();
         $teacher->delete();
         return response()->json(["Message"=>"Teacher Has Been Deleted"]);

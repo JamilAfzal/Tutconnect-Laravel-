@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Course;
 
 class Teacher extends Model
 {
@@ -21,4 +22,8 @@ class Teacher extends Model
     {
         return $this->hasMany(customfields::class,"teacher_id");
     }
+    public function course()
+{
+    return $this->hasMany(Course::class, 'teacher_id');
+}
 }
