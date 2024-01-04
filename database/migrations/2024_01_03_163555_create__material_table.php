@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('_material', function (Blueprint $table) {
             $table->id("material_id");
-            $table->unsignedBigInteger("course_id");
-            $table->foreign('course_id')->references('course_id')->on('courses');
+            $table->unsignedBigInteger("module_id");
+            $table->foreign('module_id')->references('module_id')->on('modules');
             $table->string("title");
             $table->string("content");
 

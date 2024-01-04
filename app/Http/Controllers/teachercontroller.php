@@ -65,6 +65,16 @@ class teachercontroller extends Controller
             if ($req->has('custom_fields') && count($req->input('custom_fields')) > 0) {
                 // Retrieve custom fields data from the request
                 $customFieldsData = $req->input('custom_fields');
+                foreach ($customFieldsData as $customField) {
+                    $validatorCustomField = Validator::make($customField, [
+                        'name' => 'required|string|max:50|min:3',
+                        'value' => 'required|string|max:255',
+                    ]);
+
+                    if ($validatorCustomField->fails()) {
+                        return response()->json(['error' => 'Invalid custom field structure. Each custom field must have a valid name and value.'], 400);
+                    }
+                }
 
                 
                 $customFieldsData['teacher_id'] = $teacher->teacher_id;

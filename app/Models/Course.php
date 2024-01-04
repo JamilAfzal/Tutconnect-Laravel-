@@ -11,7 +11,7 @@ class Course extends Model
     use HasFactory;
     protected $primaryKey = "course_id";
 
-    protected $fillable=["course_name","course_duration","course_desc","course_fee","course_image","course_obj","start_date","end_date"];
+    protected $fillable=["name","duration","desc","fee","course_image","obj","start_date","end_date"];
     public function teacher()
     {
         return $this->belongsTo(Teacher::class);

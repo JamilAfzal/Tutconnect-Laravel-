@@ -29,6 +29,9 @@ Route::get("allstudents",[studentcontroller::class,"show_students"]);
 Route::delete("deletestudent/{id}",[studentcontroller::class,"delete_student"]);
 Route::put("updatestudent/{id}",[studentcontroller::class,"update_student"]);
 Route::get("student_details/{id}",[studentcontroller::class,"student_details"]);
+//Course CRUD Apis
+Route::post("courseregister",[coursecontroller::class,"course_register"]);
+Route::get("getcourses",[coursecontroller::class,"course_details"]);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

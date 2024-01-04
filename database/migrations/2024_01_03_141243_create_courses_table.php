@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id("course_id");
             $table->unsignedBigInteger("teacher_id");
             $table->foreign('teacher_id')->references('teacher_id')->on('teachers');
-            $table->string("course_name");
-            $table->string("course_duration");
-            $table->string("course_desc")->nullable();
-            $table->bigInteger("course_fee");
+            $table->string("name",30);
+            $table->string("duration");
+            $table->string("desc",50)->nullable();
+            $table->bigInteger("fee");
             $table->string("course_image")->nullable();
-            $table->string("course_obj")->nullable();
+            $table->string("obj",50)->nullable();
             $table->date("start_date");
             $table->date("end_date");
             $table->timestamps();

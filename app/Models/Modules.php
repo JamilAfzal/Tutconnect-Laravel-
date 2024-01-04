@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Course;
+use App\Models\Material;
 
 class Modules extends Model
 {
@@ -15,5 +16,8 @@ class Modules extends Model
     {
         return $this->belongsTo(Course::class);
     }
-    
+    public function material()
+    {
+        return $this->hasMany(Material::class);
+    }
 }
