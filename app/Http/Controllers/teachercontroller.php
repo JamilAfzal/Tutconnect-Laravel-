@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Course;
 use App\Models\Modules;
+use App\Models\Material;
 
 class teachercontroller extends Controller
 {
@@ -134,7 +135,6 @@ class teachercontroller extends Controller
         }
 
         $teacher->course()->delete();
-        $teacher->course()->modules()->delete();
         $teacher->customfields()->delete();
         $teacher->delete();
         return response()->json(["Message"=>"Teacher Has Been Deleted"]);
@@ -171,10 +171,31 @@ class teachercontroller extends Controller
             $teacher->phonenumber = $validatedData['phonenumber'] ?? $teacher->phonenumber; 
             $teacher->about = $req->about;
            $teacher->qualification = $req -> qualification;
-        if ($req->has('custom_fields') && is_array($req->input('custom_fields')) && count($req->input('custom_fields')) > 0) {
+           if ($req->has('image')) {
+        
+            $imageData = $req->input('image');
+    
+            // Remove the existing image file
+            if (Storage::disk('public')->exists($teacher->image)) {
+                Storage::disk('public')->delete($teacher->image);
+            }
+    
+            $newImagePath = 'teacher_images/' . uniqid() . '.jpg';
+            $imageBinary = base64_decode($imageData);
+    
+            Storage::disk('public')->put($newImagePath, $imageBinary);
+    
+            // Update the course record in the database with the new image path
+            $teacher->image = $newImagePath;
+        }
+
+        if ($req->has('custom_fields') && count($req->input('custom_fields')) > 0) {
             $customFieldsData = $req->input('custom_fields');
             $customFieldsData['teacher_id'] = $teacher->teacher_id;
             $customField = $teacher->customfields()->updateOrCreate([], ['fields' => json_encode($customFieldsData)]);
+            return response()->json(["Message"=>"Updated","Data"=> $teacher,"CustomFields"=>customFieldsData]);
+        
+        
         }
         
         $teacher->save();
