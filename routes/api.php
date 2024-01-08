@@ -6,6 +6,7 @@ use App\Http\Controllers\teachercontroller;
 use App\Http\Controllers\studentcontroller;
 use App\Http\Controllers\enrollcontroller;
 use App\Http\Controllers\coursecontroller;
+use App\Http\Controllers\modulecontroller;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +33,14 @@ Route::get("student_details/{id}",[studentcontroller::class,"student_details"]);
 //Course CRUD Apis
 Route::post("courseregister",[coursecontroller::class,"course_register"]);
 Route::get("showcourses",[coursecontroller::class,"showCourses"]);
-
+Route::put("updatecourse",[coursecontroller::class,"updatecourse"]);
+Route::delete("deletecourse",[coursecontroller::class,"deletecourse"]);
+Route::get("showcourse",[coursecontroller::class,"showcourse"]);
+//Module CRUD Apis
+Route::post('createmodule',[modulecontroller::class,'create_module']);
+Route::get('allmodules',[modulecontroller::class,'allmodules']);
+Route::get('showmodule/{id}',[modulecontroller::class,'showmodule']);
+Route::delete('deletemodule/{id}',[modulecontroller::class,'deletemodule']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

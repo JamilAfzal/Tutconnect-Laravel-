@@ -37,7 +37,7 @@ class teachercontroller extends Controller
             $teacher->phonenumber = $req->input('phonenumber');
             $teacher->qualification = $req->input('qualification');
             $teacher->about = $req->input('about');
-            if ($req->has('image')) {
+            if ($req->has('image')&& !empty($req->input('image'))) {
                 // Get the base64-encoded image data from the request
                 $imageData = $req->input('image');
             
@@ -133,9 +133,16 @@ class teachercontroller extends Controller
         if(!$teacher){
             return response()->json(["Status"=>"Failed","Message"=>"No Teacher Found"]);
         }
-
-        $teacher->course()->delete();
+        $teacher->courses()->each(function ($course) {
+            $course->modules()->each(function ($module) {
+               
+                $module->materials()->delete();
+                
+                $module->delete();
+            });
+        });
         $teacher->customfields()->delete();
+        $teacher->courses()->delete();
         $teacher->delete();
         return response()->json(["Message"=>"Teacher Has Been Deleted"]);
     } catch (\Exception $e) {

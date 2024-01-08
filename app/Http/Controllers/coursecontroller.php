@@ -36,7 +36,7 @@ class CourseController extends Controller
             // Have to remove this later
             $course->teacher_id = $request->input('teacher_id');
 
-            if ($request->has('course_image')) {
+            if ($request->has('course_image') && !empty($request->input('course_image'))) {
                 $imageData = $request->input('course_image');
                 $imageData = str_replace('data:image/jpeg;base64,', '', $imageData);
                 $imageData = str_replace(' ', '+', $imageData);
@@ -93,18 +93,18 @@ class CourseController extends Controller
         })->all();
 
         return [
-            'course_id' => $course->course_id,
-            'name' => $course->name,
-            'duration' => $course->duration,
-            'desc' => $course->desc,
-            'fee' => $course->fee,
-            'course_image' => $course->course_image,
-            'obj' => $course->obj,
-            'start_date'=> $course->start_date,
-            'end_date'=> $course->end_date,
+            
+            'Name' => $course->name,
+            'Duration' => $course->duration,
+            'Description' => $course->desc,
+            'Fee' => $course->fee,
+            'Image' => $course->course_image,
+            'Obj' => $course->obj,
+            'Starting date'=> $course->start_date,
+            'End date'=> $course->end_date,
             'created_at' => $course->created_at,
             'updated_at' => $course->updated_at,
-            'custom_fields' => $customFields
+            'Custom fields' => $customFields
         ];
     });
 
@@ -127,7 +127,7 @@ public function deletecourse($course_id){
         return response()->json(["Message"=>"No Course Found"]);
     }
     $course->modules()->each(function ($module) {
-        $module->materials()->delete();
+        $module->material()->delete();
         $module->delete();
     });
 
@@ -152,7 +152,7 @@ public function updatecourse(Request $req, $course_id){
 if($validatedata->fails()){
     return response()->json(["Error"=> $validatedata->errors()]);
 }
-    $course->name= $validateddata['name']?? $course->name;
+    $course->name= $validatedata['name']?? $course->name;
     $course->duration = $req->duration;
     $course->desc = $req->desc;
     $course->fee = $req->fee;

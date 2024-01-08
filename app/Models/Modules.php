@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Course;
 use App\Models\Material;
+use App\Http\Controllers\modulecontroller;
 
 class Modules extends Model
 {
@@ -16,7 +17,7 @@ class Modules extends Model
     {
         return $this->belongsTo(Course::class);
     }
-    public function material()
+    public function materials()
     {
         return $this->hasMany(Material::class);
     }
