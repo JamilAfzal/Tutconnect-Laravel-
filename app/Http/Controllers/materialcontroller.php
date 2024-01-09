@@ -35,7 +35,7 @@ class materialcontroller extends Controller
     
                 if ($extension == 'pdf' || $extension == 'txt' || $extension == 'png' || $extension == 'jpeg' || $extension == 'jpg') {
                     $path = $file->store('material_files');
-                    $material->content = base64_encode(File::get($file));
+                    $material->content = base64_encode(file_get_contents($file));
                 } else {
                     return response()->json(["error" => "Invalid file format. Please upload a PDF, PNG, JPEG, or text file."], 400);
                 }
@@ -62,4 +62,64 @@ class materialcontroller extends Controller
         return response()->json(["error" => $e->getMessage()],);
     }
   }
+  public function showallmaterial()
+  {
+    try{$materials = Material::all();
+        $Allmaterial = $materials->map(function ($material) {
+            return [
+                'Material ID' => $material->material_id,
+                'Title' => $material->title,
+                'Content' => $material->content
+            ];
+        });
+    
+        return response()->json(["Message"=>"Showing All Material Details","Data"=>$Allmaterial]);
+    }
+    catch(\Exception $e){
+        return response()->json(["error" => $e->getMessage()],);
+        }
 }
+public function showmaterial($material_id){
+    try{
+        $material = Material::find($material_id);
+      if(!$material){
+        return response()->json(["Message"=>"No Material Found"]);
+      }
+      return response()->json(["Showing the Material Details","Data"=>$material]);
+    }
+    catch(\Exception $e){
+        return response()->json(["error" => $e->getMessage()],);
+    }
+}
+public function updatematerial(Request $req, $material_id){
+    try{
+     $material = Material::find($material_id);
+     if(!$material){
+        return response()->json(["Error"=>"No Error Found"]);
+
+     }
+     $validatedata = Validator::make($req->all(),[
+        "title"=>"required"
+     ]);
+     $material->title=$validatedata['title']?? $req->title;
+     if ($req->hasFile('content')) {
+        $file = $req->file('content');
+        $extension = $file->getClientOriginalExtension();
+
+        if ($extension == 'pdf' || $extension == 'txt' || $extension == 'png' || $extension == 'jpeg' || $extension == 'jpg') {
+            $path = $file->store('material_files');
+            $material->content = base64_encode(file_get_contents($file));
+        } else {
+            return response()->json(["error" => "Invalid file format. Please upload a PDF, PNG, JPEG, or text file."], 400);
+        
+        }
+        $material->save();
+        return response()->json(["Message" => "Material Updated Successfully"]);
+    }
+}
+    catch(\Exception $e){
+        return response()->json(["error" => $e->getMessage()]);
+    }
+}
+}  
+

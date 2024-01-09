@@ -7,7 +7,7 @@ use App\Http\Controllers\studentcontroller;
 use App\Http\Controllers\enrollcontroller;
 use App\Http\Controllers\coursecontroller;
 use App\Http\Controllers\modulecontroller;
-
+use App\Http\Controllers\materialcontroller;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -41,6 +41,10 @@ Route::post('createmodule',[modulecontroller::class,'create_module']);
 Route::get('allmodules',[modulecontroller::class,'allmodules']);
 Route::get('showmodule/{id}',[modulecontroller::class,'showmodule']);
 Route::delete('deletemodule/{id}',[modulecontroller::class,'deletemodule']);
+Route::put('updatemodule/{id}',[modulecontroller::class,'updatemodule']);
+//Material CRUD Apis
+Route::post('createMaterial',[materialcontroller::class,'createMaterial']);
+Route::delete('deletematerial',[materialcontroller::class,'deletematerial']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
