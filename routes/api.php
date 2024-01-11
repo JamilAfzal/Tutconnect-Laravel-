@@ -44,7 +44,10 @@ Route::delete('deletemodule/{id}',[modulecontroller::class,'deletemodule']);
 Route::put('updatemodule/{id}',[modulecontroller::class,'updatemodule']);
 //Material CRUD Apis
 Route::post('createMaterial',[materialcontroller::class,'createMaterial']);
-Route::delete('deletematerial',[materialcontroller::class,'deletematerial']);
+Route::delete('deletematerial/{id}',[materialcontroller::class,'deletematerial']);
+Route::get('showallmaterial',[materialcontroller::class,'showallmaterial']);
+Route::get('showmodule/{id}',[materialcontroller::class,'showmodule']);
+Route::put('updatemodule/{id}',[materialcontroller::class,'updatemodule']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

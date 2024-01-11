@@ -7,12 +7,13 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Modules;
 use App\Models\Material;
+use Illuminate\Support\Facades\File;
 
 
 
 class materialcontroller extends Controller
 {
-    use Illuminate\Support\Facades\File;
+   
 
     public function createMaterial(Request $req)
     {
@@ -36,7 +37,12 @@ class materialcontroller extends Controller
                 if ($extension == 'pdf' || $extension == 'txt' || $extension == 'png' || $extension == 'jpeg' || $extension == 'jpg') {
                     $path = $file->store('material_files');
                     $material->content = base64_encode(file_get_contents($file));
-                } else {
+                } elseif($extension == 'mp4' || $extension == "avi" || $extension =='mov'){
+                    $path = $file->store('material_videos');
+                    $material->content = base64_encode(file_get_contents($file));
+
+                }
+                 else {
                     return response()->json(["error" => "Invalid file format. Please upload a PDF, PNG, JPEG, or text file."], 400);
                 }
             } else {
@@ -106,13 +112,20 @@ public function updatematerial(Request $req, $material_id){
         $file = $req->file('content');
         $extension = $file->getClientOriginalExtension();
 
-        if ($extension == 'pdf' || $extension == 'txt' || $extension == 'png' || $extension == 'jpeg' || $extension == 'jpg') {
+        if (in_array($extension,['pdf','jpeg','jpg','png','txt'])) {
             $path = $file->store('material_files');
             $material->content = base64_encode(file_get_contents($file));
-        } else {
+            
+        }elseif(in_array($extension,['mp4','avi','mov'])){
+            $path = $file->store('material_videos');
+            $material->content = base64_encode(file_get_contents($file));
+        } 
+        
+         else {
             return response()->json(["error" => "Invalid file format. Please upload a PDF, PNG, JPEG, or text file."], 400);
         
         }
+        
         $material->save();
         return response()->json(["Message" => "Material Updated Successfully"]);
     }

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Modules;
 use App\Models\Material;
 
+
 use Illuminate\Http\Request;
 
 class modulecontroller extends Controller
@@ -99,7 +100,9 @@ class modulecontroller extends Controller
     $module->save();
 
 
- }catch(\Exception $e){}
+ }catch(\Exception $e){
+    return response()->json(["error" => $e->getMessage()],);
+ }
  }
 }
 

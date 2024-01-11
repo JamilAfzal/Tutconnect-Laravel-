@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\customfields;
-use App\Models\Teacher; // Fix the namespace
+use App\Models\Teacher; 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Course;
 use App\Models\Modules;
 use App\Models\Material;
+use Illuminate\Support\Facades\File;
 
 class teachercontroller extends Controller
 {
