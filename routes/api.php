@@ -33,9 +33,9 @@ Route::get("student_details/{id}",[studentcontroller::class,"student_details"]);
 //Course CRUD Apis
 Route::post("courseregister",[coursecontroller::class,"course_register"]);
 Route::get("showcourses",[coursecontroller::class,"showCourses"]);
-Route::put("updatecourse",[coursecontroller::class,"updatecourse"]);
-Route::delete("deletecourse",[coursecontroller::class,"deletecourse"]);
-Route::get("showcourse",[coursecontroller::class,"showcourse"]);
+Route::put("updatecourse/{id}",[coursecontroller::class,"updatecourse"]);
+Route::delete("deletecourse/{id}",[coursecontroller::class,"deletecourse"]);
+Route::get("showcourse/{id}",[coursecontroller::class,"showcourse"]);
 //Module CRUD Apis
 Route::post('createmodule',[modulecontroller::class,'create_module']);
 Route::get('allmodules',[modulecontroller::class,'allmodules']);
@@ -46,8 +46,8 @@ Route::put('updatemodule/{id}',[modulecontroller::class,'updatemodule']);
 Route::post('createMaterial',[materialcontroller::class,'createMaterial']);
 Route::delete('deletematerial/{id}',[materialcontroller::class,'deletematerial']);
 Route::get('showallmaterial',[materialcontroller::class,'showallmaterial']);
-Route::get('showmodule/{id}',[materialcontroller::class,'showmodule']);
-Route::put('updatemodule/{id}',[materialcontroller::class,'updatemodule']);
+Route::get('showmaterial/{id}',[materialcontroller::class,'showmaterial']);
+Route::put('updatematerial/{id}',[materialcontroller::class,'updatematerial']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

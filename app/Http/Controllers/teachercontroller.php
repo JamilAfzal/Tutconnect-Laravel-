@@ -74,7 +74,7 @@ class teachercontroller extends Controller
                     ]);
 
                     if ($validatorCustomField->fails()) {
-                        return response()->json(['error' => 'Invalid custom field structure. Each custom field must have a valid name and value.'], 400);
+                        return response()->json(['Error' => 'Invalid custom field structure. Each custom field must have a valid name and value.'], 400);
                     }
                 }
 
@@ -127,14 +127,14 @@ class teachercontroller extends Controller
         ];
     });
 
-    return response()->json(["Status" => "Success", "Details" => $formattedTeachers]);
+    return response()->json(["Status" => "Success", "Details" => $formattedTeachers], 200 , [], JSON_PRETTY_PRINT);
 }
     public function deleteteacher($teacher_id){
         try{$teacher = Teacher::find($teacher_id);
         if(!$teacher){
             return response()->json(["Status"=>"Failed","Message"=>"No Teacher Found"]);
         }
-        $teacher->courses()->each(function ($course) {
+        $teacher->course()->each(function ($course) {
             $course->modules()->each(function ($module) {
                
                 $module->materials()->delete();
@@ -143,26 +143,50 @@ class teachercontroller extends Controller
             });
         });
         $teacher->customfields()->delete();
-        $teacher->courses()->delete();
+        $teacher->course()->delete();
         $teacher->delete();
         return response()->json(["Message"=>"Teacher Has Been Deleted"]);
     } catch (\Exception $e) {
         return response()->json(['Error' => $e->getMessage()]);
 }
 }   
-     public function showteacher($teacher_id)
-     {
-        try{
-            $teacher= Teacher::find($teacher_id);
-            if(!$teacher){
-                return response()->json(["Status"=>"Failed","Message"=>"No Teacher Found"]);
-            }
-            
-            return response()->json(["Status" => "Success", "Message" => "Showing the Teacher Details","Data"=>$teacher,]);
-        } catch (\Exception $e){
-            return response()->json(['Error' => $e->getMessage()]);
+public function showteacher($teacher_id)
+{
+    try {
+        $teacher = Teacher::with('customfields')->find($teacher_id);
+
+        if (!$teacher) {
+            return response()->json(["Status" => "Failed", "Message" => "No Teacher Found"]);
         }
-     }
+
+        $customFields = $teacher->customfields->map(function ($customfields) {
+            $decodedFields = is_array($customfields->fields) ? $customfields->fields : json_decode($customfields->fields, true);
+            return $decodedFields;
+        })->all();
+
+        foreach ($customFields as &$fields) {
+            unset($fields['teacher_id']);
+        }
+
+        $formattedTeacher = [
+            'teacher_id' => $teacher->teacher_id,
+            'email' => $teacher->email,
+            'fullname' => $teacher->fullname,
+            'phonenumber' => $teacher->phonenumber,
+            'qualification' => $teacher->qualification,
+            'about' => $teacher->about,
+            'created_at' => $teacher->created_at,
+            'updated_at' => $teacher->updated_at,
+            'customfields' => $customFields,
+        ];
+
+        return response()->json(["Status" => "Success", "Details" => $formattedTeacher], 200, [], JSON_PRETTY_PRINT);
+
+    } catch (\Exception $e) {
+        return response()->json(['Error' => $e->getMessage()]);
+    }
+}
+
      public function updateteacher(Request $req , $teacher_id){
         try{
             $teacher = Teacher::find($teacher_id);
@@ -201,13 +225,13 @@ class teachercontroller extends Controller
             $customFieldsData = $req->input('custom_fields');
             $customFieldsData['teacher_id'] = $teacher->teacher_id;
             $customField = $teacher->customfields()->updateOrCreate([], ['fields' => json_encode($customFieldsData)]);
-            return response()->json(["Message"=>"Updated","Data"=> $teacher,"CustomFields"=>customFieldsData]);
+            return response()->json(["Message"=>"Updated","Data"=> $teacher,"CustomFields"=>$customFieldsData]);
         
         
         }
         
         $teacher->save();
-        $result = array('status' => 'true', 'message' => 'Teacher\'s Info has been Updated', 'data' => $teacher);
+        $result = array('Status' => 'true', 'Message' => 'Teacher\'s Info has been Updated', 'Data' => $teacher);
         return response()->json($result);
         }
         catch(\Exception $e){

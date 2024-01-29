@@ -10,9 +10,10 @@ use App\Models\Modules;
 class Material extends Model
 {
     use HasFactory;
+    protected $primaryKey = 'material_id';
     protected $fillable = ["title","content"];
     public function modules()
     {
-        return $this->belongsTo(Modules::class);
+        return $this->belongsTo(Modules::class, 'module_id');
     }
 }

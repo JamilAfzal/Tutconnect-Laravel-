@@ -18,7 +18,7 @@ class CourseController extends Controller
                 "fee" => "required",
                 "start_date" => "required",
                 "end_date" => "required",
-                "course_image" => "image|mimes:jpeg,png,jpg,gif|max:2048",
+                
             ]);
 
             if ($validator->fails()) {
@@ -110,17 +110,48 @@ class CourseController extends Controller
 
     return response()->json(['courses' => $formattedCourses]);
 }
-public function showcourse($course_id){
-   try{ $course = Course::find($course_id);
-    if(!$course){
-        return response()->json(["Message"=>"No Course Found"]);
-    }
-    return response()->json(["Status" => "Success", "Message" => "Showing the Teacher Details","Data"=>$course,]);}
-    catch(\Exception $e){
+public function showcourse($course_id)
+{
+    try {
+        $course = Course::find($course_id);
+
+        if (!$course) {
+            return response()->json(["Message" => "No Course Found"]);
+        }
+
+        $customFields = [];
+
+        if ($course->customfields) {
+            $customFields = $course->customfields->map(function ($customfields) {
+                $decodedFields = is_array($customfields->fields) ? $customfields->fields : json_decode($customfields->fields, true);
+                return $decodedFields;
+            })->all();
+
+            foreach ($customFields as &$fields) {
+                unset($fields['course_id']);
+            }
+        }
+
+        $formattedCourse = [
+            'Course ID' => $course->course_id,
+            'Name' => $course->name,
+            'Duration' => $course->duration,
+            'Start Date' => $course->start_date,
+            'End Date' => $course->end_date,
+            'Fee' => $course->fee,
+            'Objective' => $course->obj,
+            'Description' => $course->desc,
+            'Updated At' => $course->updated_at,
+            'Custom Fields' => $customFields,
+        ];
+
+        return response()->json(["Status" => "Success", "Details" => $formattedCourse], 200, [], JSON_PRETTY_PRINT);
+    } catch (\Exception $e) {
         return response()->json(['Error' => $e->getMessage()]);
     }
-
 }
+
+
 public function deletecourse($course_id){
     try{$course = Course::find($course_id);
     if(!$course){
@@ -132,8 +163,9 @@ public function deletecourse($course_id){
     });
 
     
-    $course()->CourseCustomFields()->delete();
+    $course->coursecustomfields()->delete();
     $course->delete();
+    return response()->json(["Message"=>"Course Has Been Deleted"]);
 }
     catch(\Exception $e){
         return response()->json(['Error' => $e->getMessage()]);
@@ -143,7 +175,7 @@ public function deletecourse($course_id){
 public function updatecourse(Request $req, $course_id){
      try{
         $course = Course::find($course_id);
-        if(!$course_id){
+        if(!$course){
         return response()->json(["Message"=>"No Course Found"]);
     }
     $validatedata = Validator::make($req->all(),[
@@ -152,7 +184,7 @@ public function updatecourse(Request $req, $course_id){
 if($validatedata->fails()){
     return response()->json(["Error"=> $validatedata->errors()]);
 }
-    $course->name= $validatedata['name']?? $course->name;
+    $course->name= $validatedata->validated()['name'] ?? $req->name;
     $course->duration = $req->duration;
     $course->desc = $req->desc;
     $course->fee = $req->fee;

@@ -9,7 +9,7 @@ use App\Models\Student;
 class studentcontroller extends Controller
 {
     public function student_register(Request $req){
-        $validate = Validator::make($req->all(), [
+        try{ $validate = Validator::make($req->all(), [
             'email' => 'required|email|unique:students,email',
             'fullname' => 'required|min:5|unique:students',
             'password' => 'required|min:7|max:20',
@@ -24,6 +24,9 @@ class studentcontroller extends Controller
             $student->phonenumber=$req->input("phonenumber");
             $student->save();
             return response()->json(["Message" => "Student Registered Successfully", "Data" => $student]);
+        }catch(\Exception $e){
+            return response()->json(["error" => $e->getMessage()]);
+        }
     }
     public function show_students(){
         $students = Student::all();
@@ -51,7 +54,8 @@ class studentcontroller extends Controller
         return response()->json(["Status" => "Success", "Message" => "Student Has Been Deleted"]);
     }
     public function update_student(Request $req, $student_id) {
-        $student = Student::find($student_id);
+        try{
+            $student = Student::find($student_id);
         if (!$student) {
             $result = array('Status' => "Failed", "Message" => "Student Not Found");
             return response()->json($result);
@@ -71,13 +75,18 @@ class studentcontroller extends Controller
     
         $result = array('status' => 'true', 'message' => 'User has been Updated', 'data' => $student);
         return response()->json($result);
+        }catch(\Exception $e){
+            return response()->json(["error" => $e->getMessage()]);}
     }
     public function student_details($student_id){
-        $student = Student::find($student_id);
-        if (!$student) {
-            $result = array('Status' => "Failed", "Message" => "Student Not Found");
-            return response()->json($result);
-        }
-        return response()->json(["Status" => "Success", "Message" => "Showing the Student Details","Data"=>$student]);
+        try{$student = Student::find($student_id);
+            if (!$student) {
+                $result = array('Status' => "Failed", "Message" => "Student Not Found");
+                return response()->json($result);
+            }
+            return response()->json(["Status" => "Success", "Message" => "Showing the Student Details","Data"=>$student]);}
+            catch(\Exception $e){
+                return response()->json(["error" => $e->getMessage()]);
+            }
     }
 }    

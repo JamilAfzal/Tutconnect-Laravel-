@@ -17,7 +17,7 @@ class Modules extends Model
     {
         return $this->belongsTo(Course::class);
     }
-    public function materials()
+    public function material()
     {
         return $this->hasMany(Material::class);
     }

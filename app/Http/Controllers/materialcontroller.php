@@ -20,30 +20,29 @@ class materialcontroller extends Controller
         try {
             $validator = Validator::make($req->all(), [
                 "title" => "required",
-                "content" => "required|file|mimes:jpeg,png,jpg,pdf,txt|max:2048",
+                "content" => "required|file|max:2048",
+                "module_id" => "required|exists:modules,module_id", // Ensure module_id exists in the modules table
             ]);
     
             if ($validator->fails()) {
-                return response()->json(["error" => $validator->errors()], 400);
+                return response()->json(["error" => $validator->errors()], 422);
             }
     
             $material = new Material();
             $material->title = $req->input('title');
+            $material->module_id = $req->input('module_id'); // Assign module_id from the request
     
             if ($req->hasFile('content')) {
                 $file = $req->file('content');
                 $extension = $file->getClientOriginalExtension();
+                $allowedExtensions = ['pdf', 'txt', 'png', 'jpeg', 'jpg', 'mp4', 'avi', 'mov'];
     
-                if ($extension == 'pdf' || $extension == 'txt' || $extension == 'png' || $extension == 'jpeg' || $extension == 'jpg') {
-                    $path = $file->store('material_files');
-                    $material->content = base64_encode(file_get_contents($file));
-                } elseif($extension == 'mp4' || $extension == "avi" || $extension =='mov'){
-                    $path = $file->store('material_videos');
-                    $material->content = base64_encode(file_get_contents($file));
+                if (in_array($extension, $allowedExtensions)) {
+                    $path = $file->store('materials', 'public');
 
-                }
-                 else {
-                    return response()->json(["error" => "Invalid file format. Please upload a PDF, PNG, JPEG, or text file."], 400);
+                    $material->content = $path;
+                } else {
+                    return response()->json(["error" => "Invalid file format. Please upload a PDF, PNG, JPEG, TXT, MP4, AVI, or MOV file."], 400);
                 }
             } else {
                 return response()->json(["error" => "File not provided."], 400);
@@ -53,9 +52,11 @@ class materialcontroller extends Controller
     
             return response()->json(["Message" => "Material Created"]);
         } catch (\Exception $e) {
-            return response()->json(["error" => $e->getMessage()],);
+            return response()->json(["error" => $e->getMessage()], 500);
         }
     }
+    
+
     
   public function deletematerial($material_id){
     try{$material = Material::find($material_id);
@@ -97,42 +98,54 @@ public function showmaterial($material_id){
         return response()->json(["error" => $e->getMessage()],);
     }
 }
-public function updatematerial(Request $req, $material_id){
-    try{
-     $material = Material::find($material_id);
-     if(!$material){
-        return response()->json(["Error"=>"No Error Found"]);
-
-     }
-     $validatedata = Validator::make($req->all(),[
-        "title"=>"required"
-     ]);
-     $material->title=$validatedata['title']?? $req->title;
-     if ($req->hasFile('content')) {
-        $file = $req->file('content');
-        $extension = $file->getClientOriginalExtension();
-
-        if (in_array($extension,['pdf','jpeg','jpg','png','txt'])) {
-            $path = $file->store('material_files');
-            $material->content = base64_encode(file_get_contents($file));
-            
-        }elseif(in_array($extension,['mp4','avi','mov'])){
-            $path = $file->store('material_videos');
-            $material->content = base64_encode(file_get_contents($file));
-        } 
-        
-         else {
-            return response()->json(["error" => "Invalid file format. Please upload a PDF, PNG, JPEG, or text file."], 400);
-        
+public function updatematerial(Request $req, $material_id)
+{
+    try {
+        $material = Material::find($material_id);
+        if (!$material) {
+            return response()->json(["Error" => "Material not found"]);
         }
-        
+
+        $validator = Validator::make($req->all(), [
+            "title" => "required",
+            "content" => "required|file|max:2048" // Require file upload
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["error" => $validator->errors()], 400);
+        }
+
+        $material->title = $req->input('title');
+
+        // Handle content update if file is provided
+        if ($req->hasFile('content')) {
+            $file = $req->file('content');
+            $extension = $file->getClientOriginalExtension();
+
+            $allowedExtensions = ['pdf', 'jpeg', 'jpg', 'png', 'txt', 'mp4', 'avi', 'mov'];
+
+            if (!in_array($extension, $allowedExtensions)) {
+                return response()->json(["error" => "Invalid file format. Please upload a PDF, PNG, JPEG, TXT, MP4, AVI, or MOV file."], 400);
+            }
+
+            // Store the new file in the 'materials' directory and update content
+            $path = $file->store('materials', 'public');
+            $material->content = $path;
+        }
+
+        // Update title
+        $material->title = $validator->validated()['title']??$req->input('title');
+        $material->content=$validator->validated()['content']??$req->input('content');
         $material->save();
+
         return response()->json(["Message" => "Material Updated Successfully"]);
-    }
-}
-    catch(\Exception $e){
+    } catch (\Exception $e) {
         return response()->json(["error" => $e->getMessage()]);
     }
 }
-}  
+}
+
+
+
+  
 

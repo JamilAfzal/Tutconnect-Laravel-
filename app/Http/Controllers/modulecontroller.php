@@ -41,6 +41,7 @@ class modulecontroller extends Controller
 
         foreach ($modules as $module) {
             $formattedModules[] = [
+                'Module ID'=>$module->module_id,
                 'Module Name' => $module->module_name,
                 'Module Desc' => $module->module_desc,
                 'Start Date' => $module->start_date,
@@ -75,6 +76,7 @@ class modulecontroller extends Controller
         }
        
         $module->delete();
+       
         return response()->json(['Message'=>'Module Has Been Deleted']);
        
     }catch(\Exception $e){
@@ -82,9 +84,10 @@ class modulecontroller extends Controller
     }
  }
  public function updatemodule(Request $req, $module_id){
-    try{$module = Module::find($module_id);
+    try{
+        $module = Modules::find($module_id);
         if(!$module){
-            return response()->json(["No Course Found"]);
+            return response()->json(["No Module Found"]);
     
         }
         $validatedata = Validator::make($req->all(),[
@@ -93,11 +96,12 @@ class modulecontroller extends Controller
     if($validatedata->fails()){
         return response()->json(["Error"=> $validatedata->errors()]);
     }
-    $module->module_name= $validatedata['module_name']?? $module->module_name;
+    $module->module_name= $validatedata->validated()['module_name']?? $req->module_name;
     $module->module_desc = $req->module_desc;
     $module->start_date = $req->start_date;
     $module->end_date = $req->end_date;
     $module->save();
+    return response()->json(["Status" => "Success", "Message"=>"Module Has Been Updated"]);
 
 
  }catch(\Exception $e){
